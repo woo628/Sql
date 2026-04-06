@@ -20,6 +20,6 @@ SELECT employee_id "사 번", first_name||' '||last_name 이름, department_id �
 order by first_name||' '||last_name ASC; -- order by first_name asc, last name asc;
 
 -- 부서가 없는 직원을 출력
-
+SELECT employee_id, first_name||' '||last_name ENAME FROM employees WHERE department_id is null; -- is null, is not null로 비교
 
 
