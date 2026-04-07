@@ -31,7 +31,7 @@ SELECT employee_id 번호, first_name||' '||last_name 이름, email 이메일, d
 FROM employees
 WHERE department_id = 60 or department_id = 90
 --    department_id IN (60,90);
-ORDER BY 번호; -- 번호같을때 이름순 정렬은 (, 이름) 추가
+ORDER BY 번호; -- 번호같을때 / 이름순 정렬은 (, 이름) 추가
 
 -- 월급 12000이상 번호 이름 이메일 월급을 월급순
 SELECT employee_id 번호, first_name||' '||last_name 이름, email 이메일, salary 월급
@@ -103,7 +103,7 @@ WHERE commission_pct IS null;
 --          받는 사람 IS NOT null
 
 -- 전화번호가 010으로 시작하는
--- pattern mactching - ㅣㅑㅏㄷ
+-- pattern mactching - like 문법사용
 -- % : 0자 이상의 모든 숫자글자
 -- _ : 1자의 모든 숫자글자
 SELECT *
@@ -212,7 +212,7 @@ FROM employees
 WHERE department_id != 80;
 
 -- 2026년 04월 07일 17시 16분 04초 오후 화요일 / 한자로출력
-SELECT TO_CHAR(sysdate,'YYYY-MM-DD HH24:MI:SS am day','NLS_DATE_LANGUAGE=JAPANESE')
+SELECT TO_CHAR(sysdate,'YYYY"년" MM"월" DD"일" HH24"시" MI"분" SS"초" am day','NLS_DATE_LANGUAGE=JAPANESE')
 FROM dual;
 
 
