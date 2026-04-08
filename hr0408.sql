@@ -203,21 +203,128 @@ WHERE department_id = 60;
 -- 부서 50,60,80 부서가 아닌 인원수 월급합 월급평균
 SELECT COUNT(DEPARTMENT_ID) 인원수,
        SUM(SALARY) 월급합,
-       ROUND(AVG(SALARY),2)월급평균
+       ROUND(AVG(SALARY),2) 월급평균
 FROM employees 
 WHERE department_id NOT IN (50,60,80);
 
 --------------------------------------------------------------------------------
+-- 부서별 사원수
+SELECT  DEPARTMENT_ID 부서번호,
+        COUNT(EMPLOYEE_ID) 사원수
+FROM employees
+-- WHERE
+-- GROUP BY department_id
+GROUP BY ROLLUP(department_id)
+-- HAVING 
+ORDER BY 부서번호;
 
+-- 부서별 월급합, 월급평균
+SELECT  DEPARTMENT_ID 부서번호,
+        COUNT(EMPLOYEE_ID) 사원수,
+        SUM(SALARY) 월급합,
+        ROUND(AVG(SALARY)) 월급평균
+FROM employees
+GROUP BY department_id
+ORDER BY 부서번호;
+-- 일반 칼럼과 집계함수를 동시에 사용못한다 (~별 통계)
+-- GROUP BY 절 사용
 
+-- 부서별 사원수 통계
+SELECT  DEPARTMENT_ID 부서번호,
+        COUNT(EMPLOYEE_ID) 사원수
+FROM employees
+GROUP BY department_id
+ORDER BY 부서번호;
 
+-- 부서별 인원수 월급합
+SELECT DEPARTMENT_ID 부서번호,
+       COUNT(EMPLOYEE_ID) 사원수,
+       SUM(SALARY) 월급합
+FROM employees
+GROUP BY department_id
+ORDER BY 부서번호;
 
+-- 부서별 인원수가 5명이상이 부서번호
+SELECT DEPARTMENT_ID 부서번호,
+       COUNT(EMPLOYEE_ID) 사원수
+FROM employees
+GROUP BY DEPARTMENT_ID
+HAVING COUNT(EMPLOYEE_ID) >= 5
+ORDER BY 부서번호;
 
+-- 부서별 월급 총계가 20000이상
+SELECT DEPARTMENT_ID 부서번호,
+       COUNT(EMPLOYEE_ID) 사원수,
+       SUM(SALARY) 월급합
+FROM employees 
+GROUP BY DEPARTMENT_ID
+HAVING SUM(SALARY) >= 20000
+ORDER BY 부서번호;
 
+-- JOB_ID 별 인원수
+SELECT JOB_ID,
+       COUNT(EMPLOYEE_ID) 인원수
+FROM employees
+GROUP BY JOB_ID
+ORDER BY 인원수;
 
+-- 입사일 기준 월별 인원수, 2017년 기준
+SELECT TO_CHAR(hire_date,'MM') 입사월,
+       COUNT(EMPLOYEE_ID) 월별인원수
+FROM employees
+WHERE TO_CHAR(hire_date,'YYYY') = '2017' 
+GROUP BY TO_CHAR(hire_date,'MM')
+ORDER BY 입사월;
 
+-- 부서별 최대월급이 14000 이상인 부서의 부서번호와 최대월급
+SELECT DEPARTMENT_ID 부서번호,
+       COUNT(EMPLOYEE_ID) 사원수,
+       MAX(SALARY) 최대월급
+FROM employees 
+GROUP BY DEPARTMENT_ID
+HAVING MAX(SALARY) >= 14000
+ORDER BY 부서번호;
 
+-- 부서별 모으고 같은부서는 직업별 인원수 월급평균
+SELECT DEPARTMENT_ID 부서번호,
+       JOB_ID 직업,
+       COUNT(EMPLOYEE_ID) 사원수,
+       ROUND(AVG(SALARY)) 월급평균
+FROM employees 
+--GROUP BY DEPARTMENT_ID, JOB_ID
+--GROUP BY ROLLUP(DEPARTMENT_ID, JOB_ID) -- 총계 구하기
+GROUP BY CUBE(DEPARTMENT_ID, JOB_ID) --  BY 절의 모든 총계
+ORDER BY 부서번호;
 
+-- JOB_ID 를 JOB_TITLE 로
+SELECT DEPARTMENT_ID 부서번호,
+       CASE JOB_ID 
+        WHEN 'AD_PRES' THEN 'President'
+        WHEN 'AD_VP' THEN 'Administration Vice President'
+        WHEN 'AD_ASST' THEN 'Administration Assistant'
+        WHEN 'FI_MGR' THEN 'Finance Manager'
+        WHEN 'FI_ACCOUNT' THEN 'Accountant'
+        WHEN 'AC_MGR'	THEN 'Accounting Manager'
+        WHEN 'AC_ACCOUNT'	THEN 'Public Accountant'
+        WHEN 'SA_MAN'	THEN 'Sales Manager'
+        WHEN 'SA_REP'	THEN 'Sales Representative'
+        WHEN 'PU_MAN' THEN 'Purchasing Manager'
+        WHEN 'PU_CLERK' THEN 'Purchasing Clerk'
+        WHEN 'ST_MAN'	THEN 'Stock Manager'
+        WHEN 'ST_CLERK' THEN 'Stock Clerk'
+        WHEN 'SH_CLERK' THEN 'Shipping Clerk'
+        WHEN 'IT_PROG' THEN 'Programmer'
+        WHEN 'MK_MAN'	THEN 'Marketing Manager'
+        WHEN 'MK_REP'	THEN 'Marketing Representative'
+        WHEN 'HR_REP'	THEN 'Human Resources Representative'
+        WHEN 'PR_REP'	THEN 'Public Relations Representative'
+        ELSE '그외'
+        END  JOB_TITLE,   
+       COUNT(EMPLOYEE_ID) 사원수,
+       ROUND(AVG(SALARY)) 월급평균
+FROM employees 
+GROUP BY DEPARTMENT_ID, JOB_ID
+ORDER BY 부서번호;
 
 
 
