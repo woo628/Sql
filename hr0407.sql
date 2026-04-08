@@ -212,7 +212,7 @@ FROM employees
 WHERE department_id != 80;
 
 -- 2026년 04월 07일 17시 16분 04초 오후 화요일 / 한자로출력
-SELECT TO_CHAR(sysdate,'YYYY"년" MM"월" DD"일" HH24"시" MI"분" SS"초" am day','NLS_DATE_LANGUAGE=JAPANESE')
+SELECT TO_CHAR(sysdate,'YYYY"年" MM"月" DD"日" HH24"時" MI"分" SS"秒" am day','NLS_DATE_LANGUAGE=JAPANESE')
 FROM dual;
 
 
