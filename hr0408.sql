@@ -138,7 +138,8 @@ FROM employees;
 --------------------------------------------------------------------------------
 -- 집계함수 : AGGREGATE 
 -- 모든 집계함수는 NULL 값을 포함하지 않는다
--- SUM() AVG() MIN() MAX() COUNT() VARIANCE()
+-- SUM() AVG() MIN() MAX() COUNT() STDDEV() VARIANCE()
+-- 합계  평균  최소  최대   줄수   표쥰편차   분산
 -- 그루핑 : GROUP BY  ~별 인원수
 SELECT * FROM employees;
 SELECT COUNT(*) FROM employees; -- 줄수
@@ -175,29 +176,38 @@ SELECT DISTINCT DEPARTMENT_ID FROM employees;
 SELECT COUNT(DISTINCT DEPARTMENT_ID) FROM employees;
 
 -- 직원이 근무하는 부서의 수 부서장이 있는 부서수 : DEPARTMENTS
-SELECT COUNT(DEPARTMENT_ID) FROM departments;
+SELECT COUNT(DEPARTMENT_ID) FROM departments -- 총부서수
+WHERE manager_id IS NOT NULL;  -- 근무하는 부서 수
 
 -- 직원 수 월급합 월급평균 최대월급 최소월급
-SELECT COUNT(EMPLOYEE_ID) 직원수,
+SELECT COUNT(DEPARTMENT_ID) 직원수,
        SUM(SALARY) 월급합,
-       AVG(SALARY) 월급평균,
+       ROUND(AVG(SALARY),3) 월급평균,
        MAX(SALARY) 최대월급,
        MIN(SALARY) 최소월급
-FROM employees;
+FROM employees; 
 
+
+-- SQL문 실행순서
+-- 1. FROM
+-- 2. WHERE
+-- 3. SELECT
+-- 4. ORDER BY
 -- 60번 부서 인원수 월급합 월급평균
-SELECT COUNT(EMPLOYEE_ID) 인원수,
+SELECT COUNT(DEPARTMENT_ID) 인원수,
        SUM(SALARY) 월급합,
        AVG(SALARY)월급평균
 FROM employees
 WHERE department_id = 60;
 
 -- 부서 50,60,80 부서가 아닌 인원수 월급합 월급평균
-SELECT COUNT(EMPLOYEE_ID) 인원수,
+SELECT COUNT(DEPARTMENT_ID) 인원수,
        SUM(SALARY) 월급합,
-       AVG(SALARY)월급평균
+       ROUND(AVG(SALARY),2)월급평균
 FROM employees 
 WHERE department_id NOT IN (50,60,80);
+
+--------------------------------------------------------------------------------
 
 
 
