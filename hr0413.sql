@@ -76,7 +76,7 @@ CALL GET_NAME_MAXSAL(60, :O_NAME, :O_SAL);
 PRINT O_NAME;
 PRINT O_SAL;
 --> JAVA에서 호출해서 쓴다
-
+--------------------------------------------------------------------------------
 -- 결과 여러개
 -- 90번 부서번호입력, 직원들출력
 CREATE OR REPLACE PROCEDURE GETEMPLIST(
@@ -101,7 +101,7 @@ EXECUTE GETEMPLIST(90);
 -- 결과가 3줄인데 1번만 출력
 -- SELECT INTO 는 결과가 한줄일때만 사용가능
 
--- 여러줄일때 CURSOR 사용
+-- 여러줄일때 CURSOR 사용  이 문법은 JAVA에서 읽기위해서
 CREATE OR REPLACE PROCEDURE GET_EMPLIST(
         IN_DEPTID IN NUMBER,
         O_CUR OUT SYS_REFCURSOR)
@@ -117,6 +117,26 @@ CREATE OR REPLACE PROCEDURE GET_EMPLIST(
 VARIABLE O_CUR REFCURSOR;
 EXECUTE GET_EMPLIST(50, :O_CUR)
 PRINT O_CUR;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
