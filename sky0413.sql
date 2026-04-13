@@ -50,8 +50,16 @@ CREATE TABLE EMP4
   INSERT INTO EMP4
     SELECT * FROM HR.EMPLOYEES;
     COMMIT;
-      
-      
+-- 5. 일부칼럼만 복사해서 새로운 테이블 생성
+CREATE TABLE EMP5
+    AS
+      SELECT EMPLOYEE_ID EMPID,
+             FIRST_NAME||' '||LAST_NAME ENAME,
+             SALARY SAL,
+             SALARY * COMMISSION_PCT BONUS,
+             MANAGER_ID MGR,
+             DEPARTMENT_ID DEPTID
+      FROM HR.EMPLOYEES;
       
       
       
