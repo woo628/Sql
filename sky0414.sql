@@ -97,16 +97,46 @@ RENAME EMP5 TO NEWEMP;
 -- 4. 칼럼 속성 변경 - 데이터 크기 수정
 ALTER TABLE EMP5 
     MODIFY (ENAME VARCHAR2(60)); -- 46 -> 60 / 데이터를 줄일 땐 조심 날아감
+--------------------------------------------------------------------------------
+-- 데이터가져와서 테이블 생성
+-- ZIPCODE, SIDO, GUGUN, DONG, BUNJI, SEQ
+-- 우편번호 시도  구군  읍면동  번지 일련번호
 
+CREATE TABLE ZIPCODE
+(
+ZIPCODE VARCHAR2(7),
+SIDO VARCHAR2(6),
+GUGUN VARCHAR2(26),
+DONG VARCHAR2(78),
+BUNJI VARCHAR2(26),
+SEQ NUMBER(5) PRIMARY KEY
+);
 
+-- ZIPCODE 선택후 데이터 임포트 
 
+SELECT * FROM ZIPCODE;
+SELECT COUNT(*) FROM ZIPCODE;
 
+SELECT COUNT(*) FROM ZIPCODE
+WHERE SIDO = '부산';
 
+-- 시도별 우편번호 갯수
+SELECT SIDO 시도,
+       COUNT(ZIPCODE) 우편번호갯수
+FROM ZIPCODE
+GROUP BY SIDO;
 
+SELECT COUNT(ZIPCODE), COUNT(DISTINCT ZIPCODE)
+FROM ZIPCODE;
 
-
-
-
+SELECT '['||ZIPCODE||']'||
+        SIDO||' '||
+        GUGUN||' '||
+        DONG||' '||
+        BUNJI  AS ADDRESS
+FROM ZIPCODE
+WHERE DONG LIKE '%부전2동%'
+ORDER BY SEQ;
 
 
 
