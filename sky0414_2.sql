@@ -64,7 +64,7 @@ INSERT INTO SCORES VALUES (4, '국어', 100, 2);
 INSERT INTO SCORES VALUES (5, '수학', 80, 2);
 INSERT INTO SCORES VALUES (6, '국어', 70, 4);
 INSERT INTO SCORES VALUES (7, '영어', 80, 4);
-INSERT INTO SCORES VALUES (8, '영어', 85, 4);
+INSERT INTO SCORES VALUES (8, '수학', 85, 4);
 INSERT INTO SCORES VALUES (9, '국어', 805, 5); -- 체크제약위반
 INSERT INTO SCORES VALUES (10, '영어', 100, 8); -- 8번학생의 데이터없음(부모키X)
 --------------------------------------------------------------------------------
@@ -95,20 +95,74 @@ INSERT INTO SCORES VALUES (10, '영어', 100, 8); -- 8번학생의 데이터없�
 --------------------------------------------------------------------------------
 -- 학생정보처리
 -- 학번, 이름, 점수(국어)
-SELECT STID 학번,
-       STNAME 이름,
-       SCORE 점수(국어)
-FROM STUDENT;
+SELECT A.STID 학번,
+       A.STNAME 이름,
+       B.SCORE 점수
+FROM STUDENT A
+JOIN SCORES B
+    ON (A.STID = B.STID)
+WHERE B.SUBJECT = '국어';
 
 -- 모든 학생의 학번 이름 총점 평균
+SELECT A.STID  학번,
+       A.STNAME 이름,
+       SUM(SCORE) 총점,
+       ROUND(AVG(SCORE)) 평균
+FROM STUDENT A
+LEFT JOIN SCORES B
+    ON (A.STID = B.STID)
+GROUP BY A.STID, A.STNAME
+ORDER BY 학번;
 
 -- 점수가 NULL 인 학생은 '미응시'
+SELECT A.STID 학번,
+       A.STNAME 이름,
+       DECODE(SUM(SCORE),NULL,'미응시',SUM(SCORE)) 총점,
+       DECODE(ROUND(AVG(SCORE)),NULL,'미응시',ROUND(AVG(SCORE))) 평균
+FROM STUDENT A
+LEFT JOIN SCORES B
+    ON (A.STID = B.STID)
+GROUP BY A.STID, A.STNAME
+ORDER BY 학번;
 
 -- 모든 학생의 학번 이름 총점 평균 등급 석차
+SELECT A.STID 학번,
+       A.STNAME 이름,
+       DECODE(SUM(SCORE),NULL,'미응시',SUM(SCORE)) 총점,
+       DECODE(ROUND(AVG(SCORE)),NULL,'미응시',ROUND(AVG(SCORE))) 평균,
+       CASE
+       WHEN ROUND(AVG(SCORE)) >= 90 THEN 'A'
+       WHEN ROUND(AVG(SCORE)) >= 80 THEN 'B'
+       WHEN ROUND(AVG(SCORE)) >= 70 THEN 'C'
+       WHEN ROUND(AVG(SCORE)) >= 60 THEN 'D'
+       WHEN ROUND(AVG(SCORE)) >= 50 THEN 'E'
+       ELSE 'F'                       END 등급,
+       RANK() OVER (ORDER BY ROUND(AVG(SCORE)) DESC NULLS LAST) 석차
+FROM STUDENT A
+LEFT JOIN SCORES B
+    ON (A.STID = B.STID)
+GROUP BY A.STID, A.STNAME;
 
-
-
-
+-- 모든 학생의 학번 이름 국어 영어 수학 총점 평균 등급 석차
+SELECT A.STID 학번,
+       A.STNAME 이름,
+       DECODE(MAX(CASE WHEN B.SUBJECT = '국어' THEN B.SCORE END),NULL,'미응시',MAX(CASE WHEN B.SUBJECT = '국어' THEN B.SCORE END)) 국어,
+       DECODE(MAX(CASE WHEN B.SUBJECT = '영어' THEN B.SCORE END),NULL,'미응시',MAX(CASE WHEN B.SUBJECT = '영어' THEN B.SCORE END)) 영어,
+       DECODE(MAX(CASE WHEN B.SUBJECT = '수학' THEN B.SCORE END),NULL,'미응시',MAX(CASE WHEN B.SUBJECT = '수학' THEN B.SCORE END)) 수학,
+       DECODE(SUM(SCORE),NULL,'미응시',SUM(SCORE)) 총점,
+       DECODE(ROUND(AVG(SCORE)),NULL,'미응시',ROUND(AVG(SCORE))) 평균,
+       CASE
+       WHEN ROUND(AVG(SCORE)) >= 90 THEN 'A'
+       WHEN ROUND(AVG(SCORE)) >= 80 THEN 'B'
+       WHEN ROUND(AVG(SCORE)) >= 70 THEN 'C'
+       WHEN ROUND(AVG(SCORE)) >= 60 THEN 'D'
+       WHEN ROUND(AVG(SCORE)) >= 50 THEN 'E'
+       ELSE 'F'                       END 등급,
+       RANK() OVER (ORDER BY ROUND(AVG(SCORE)) DESC NULLS LAST) 석차
+FROM STUDENT A
+LEFT JOIN SCORES B
+    ON (A.STID = B.STID)
+GROUP BY A.STID, A.STNAME;
 
 
 
