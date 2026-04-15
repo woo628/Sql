@@ -106,8 +106,8 @@ WHERE B.SUBJECT = '국어';
 -- 모든 학생의 학번 이름 총점 평균
 SELECT A.STID  학번,
        A.STNAME 이름,
-       SUM(SCORE) 총점,
-       ROUND(AVG(SCORE)) 평균
+       SUM(B.SCORE) 총점,
+       ROUND(AVG(B.SCORE)) 평균
 FROM STUDENT A
 LEFT JOIN SCORES B
     ON (A.STID = B.STID)
@@ -117,8 +117,10 @@ ORDER BY 학번;
 -- 점수가 NULL 인 학생은 '미응시'
 SELECT A.STID 학번,
        A.STNAME 이름,
-       DECODE(SUM(SCORE),NULL,'미응시',SUM(SCORE)) 총점,
-       DECODE(ROUND(AVG(SCORE)),NULL,'미응시',ROUND(AVG(SCORE))) 평균
+       DECODE(SUM(B.SCORE),NULL,'미응시',SUM(B.SCORE)) 총점,
+       DECODE(ROUND(AVG(B.SCORE)),NULL,'미응시',ROUND(AVG(B.SCORE))) 평균
+--     CASE WHEN ROUND(AVG(B.SCORE) IS NULL THEN '미응시' 
+--           ELSE TO_CHAR(AVG(B.SCORE),'990.00') END 평균        
 FROM STUDENT A
 LEFT JOIN SCORES B
     ON (A.STID = B.STID)
