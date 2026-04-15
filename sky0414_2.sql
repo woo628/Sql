@@ -151,20 +151,106 @@ SELECT A.STID 학번,
        DECODE(MAX(CASE WHEN B.SUBJECT = '국어' THEN B.SCORE END),NULL,'미응시',MAX(CASE WHEN B.SUBJECT = '국어' THEN B.SCORE END)) 국어,
        DECODE(MAX(CASE WHEN B.SUBJECT = '영어' THEN B.SCORE END),NULL,'미응시',MAX(CASE WHEN B.SUBJECT = '영어' THEN B.SCORE END)) 영어,
        DECODE(MAX(CASE WHEN B.SUBJECT = '수학' THEN B.SCORE END),NULL,'미응시',MAX(CASE WHEN B.SUBJECT = '수학' THEN B.SCORE END)) 수학,
-       DECODE(SUM(SCORE),NULL,'미응시',SUM(SCORE)) 총점,
-       DECODE(ROUND(AVG(SCORE)),NULL,'미응시',ROUND(AVG(SCORE))) 평균,
+       DECODE(SUM(B.SCORE),NULL,'미응시',SUM(B.SCORE)) 총점,
+       DECODE(ROUND(AVG(B.SCORE)),NULL,'미응시',ROUND(AVG(B.SCORE))) 평균,
        CASE
-       WHEN ROUND(AVG(SCORE)) >= 90 THEN 'A'
-       WHEN ROUND(AVG(SCORE)) >= 80 THEN 'B'
-       WHEN ROUND(AVG(SCORE)) >= 70 THEN 'C'
-       WHEN ROUND(AVG(SCORE)) >= 60 THEN 'D'
-       WHEN ROUND(AVG(SCORE)) >= 50 THEN 'E'
+       WHEN ROUND(AVG(B.SCORE)) >= 90 THEN 'A'
+       WHEN ROUND(AVG(B.SCORE)) >= 80 THEN 'B'
+       WHEN ROUND(AVG(B.SCORE)) >= 70 THEN 'C'
+       WHEN ROUND(AVG(B.SCORE)) >= 60 THEN 'D'
+       WHEN ROUND(AVG(B.SCORE)) >= 50 THEN 'E'
        ELSE 'F'                       END 등급,
-       RANK() OVER (ORDER BY ROUND(AVG(SCORE)) DESC NULLS LAST) 석차
+       RANK() OVER (ORDER BY ROUND(AVG(B.SCORE)) DESC NULLS LAST) 석차
 FROM STUDENT A
 LEFT JOIN SCORES B
     ON (A.STID = B.STID)
 GROUP BY A.STID, A.STNAME;
+
+-- 비등가 조인
+CREATE TABLE SCOREGRADE(
+    GRADE VARCHAR2(1) PRIMARY KEY,
+    LOSCORE NUMBER(6,2),
+    HISCORE NUMBER(6,2)
+);
+INSERT INTO SCOREGRADE VALUES ('A',90,100);
+INSERT INTO SCOREGRADE VALUES ('B',80,89.99);
+INSERT INTO SCOREGRADE VALUES ('C',70,79.99);
+INSERT INTO SCOREGRADE VALUES ('D',60,69.99);
+INSERT INTO SCOREGRADE VALUES ('F',0,59.99);
+COMMIT;
+
+--
+SELECT  T.학번, T.이름,
+        DECODE(T.국어,NULL,'미응시',T.국어) 국어,
+        DECODE(T.영어,NULL,'미응시',T.영어) 영어,
+        DECODE(T.수학,NULL,'미응시',T.수학) 수학,
+        DECODE(T.총점,NULL,'미응시',T.총점) 총점,
+        DECODE(T.평균,NULL,'미응시',T.수학) 평균,
+        DECODE(SG.GRADE,NULL,'미응시',SG.GRADE) 등급,
+        RANK() OVER (ORDER BY T.총점 DESC NULLS LAST) 석차
+FROM
+(SELECT A.STID 학번,
+        A.STNAME 이름,
+        SUM(DECODE(B.SUBJECT,'국어',B.SCORE)) 국어,
+        SUM(DECODE(B.SUBJECT,'영어',B.SCORE)) 영어,
+        SUM(DECODE(B.SUBJECT,'수학',B.SCORE)) 수학,
+        SUM(SCORE) 총점,
+        ROUND(AVG(SCORE),2) 평균
+FROM STUDENT A
+LEFT JOIN SCORES B
+    ON (A.STID = B.STID)
+GROUP BY A.STID, A.STNAME ) T
+LEFT JOIN SCOREGRADE SG
+    ON (T.평균 BETWEEN SG.LOSCORE AND SG.HISCORE);
+
+--------------------------------------------------------------------------------
+-- PIVOT 사용 (통계를 생성, 집계함수 사용)
+-- 학번 국어 영어 수학
+SELECT * FROM (
+    SELECT STID,SUBJECT,SCORE
+    FROM SCORES )
+PIVOT (
+    SUM(SCORE)
+    FOR SUBJECT
+        IN('국어' AS 국어, '영어' AS 영어, '수학' AS 수학)
+);
+-- 학번 이름 국어 영어 수학 총점 평균 등급 석차
+SELECT ST.STID 학번,
+       ST.STNAME 이름,
+       T.국어,
+       T.영어,
+       T.수학,
+       (NVL(T.국어,0) + NVL(T.영어,0) + NVL(T.수학,0)) 총점,
+       (NVL(T.국어,0) + NVL(T.영어,0) + NVL(T.수학,0))/3 평균,
+       SG.GRADE 등급,
+       RANK() OVER(ORDER BY (NVL(T.국어,0) + NVL(T.영어,0) + NVL(T.수학,0)) 
+                   DESC NULLS LAST) 석차
+FROM(
+    SELECT * FROM (
+        SELECT STID,SUBJECT,SCORE
+        FROM SCORES )
+    PIVOT (
+        SUM(SCORE)
+        FOR SUBJECT
+            IN('국어' AS 국어, '영어' AS 영어, '수학' AS 수학)
+    )) T
+RIGHT JOIN STUDENT ST
+    ON (T.STID = ST.STID)
+LEFT JOIN SCOREGRADE SG
+    ON ((NVL(T.국어,0) + NVL(T.영어,0) + NVL(T.수학,0))/3 
+          BETWEEN SG.LOSCORE AND SG.HISCORE);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
